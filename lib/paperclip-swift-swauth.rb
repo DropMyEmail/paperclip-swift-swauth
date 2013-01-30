@@ -1,9 +1,2 @@
-module Paperclip
-  module Storage
-
-
-    module SwiftSwauth
-
-    end
-  end
-end
+require 'paperclip/storage/swift_swauth'
+require 'paperclip/swift/swauth_client'
