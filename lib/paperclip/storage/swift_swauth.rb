@@ -11,6 +11,12 @@ module Paperclip
       end
 
       def flush_writes
+        @queued_for_write.each do |style, file|
+          write_opts = { content_type: instance_read(:content_type) }
+          client.create_object(path(style), write_opts, file)
+        end
+        after_flush_writes # allows attachment to clean up temp files
+        @queued_for_write = {}
       end
 
       def flush_deletes

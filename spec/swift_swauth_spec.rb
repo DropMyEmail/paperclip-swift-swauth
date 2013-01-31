@@ -4,7 +4,7 @@ describe 'SwiftSwauth' do
   let(:store) { Dummy.new }
 
   describe '#exists?' do
-    subject { store.exists?(style) }
+    subject     { store.exists?(style) }
     let(:style) { 'square' }
 
     context 'when attachment with default style exists' do
@@ -29,10 +29,57 @@ describe 'SwiftSwauth' do
   end
 
   describe '#flush_writes' do
-    subject { store.flush_writes }
+    subject            { store.flush_writes }
+    let(:opt_value)    { 'moo' }
+    let(:opts)         { { content_type: opt_value } }
+    let(:foo_obj_path) { 'foo' }
+    let(:foo_obj)      { double('foo_obj') }
+    let(:foo_style)    { 'foo' }
+    let(:moo_obj_path) { 'moo' }
+    let(:moo_obj)      { double('moo_obj') }
+    let(:moo_style)    { 'moo' }
 
-    context 'when write queue has items'
-    context 'when write queue has no items'
+    context 'when write queue has an item' do
+      before do
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:create_object).with(foo_obj_path, opts, foo_obj) { true }
+        store.stub(:after_flush_writes)
+        store.stub(:path) { foo_obj_path }
+        store.stub(:instance_read) { opt_value }
+        store.queued_for_write = { foo_style => foo_obj }
+      end
+
+      it 'should write to the store' do
+        expect { subject }.to_not raise_error
+      end
+    end
+
+    context 'when write queue has many items' do
+      before do
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:create_object).with(foo_obj_path, opts, foo_obj) { true }
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:create_object).with(moo_obj_path, opts, moo_obj) { true }
+        store.stub(:after_flush_writes)
+        store.should_receive(:path).with(foo_style) { foo_obj_path }
+        store.should_receive(:path).with(moo_style) { moo_obj_path }
+        store.stub(:instance_read) { opt_value }
+        store.queued_for_write = { foo_style => foo_obj, moo_style => moo_obj }
+      end
+
+      it 'should write to the store' do
+        expect { subject }.to_not raise_error
+      end
+    end
+
+    context 'when write queue has no items' do
+      before do
+        Paperclip::Swift::SwauthClient.any_instance.should_not_receive(:create_object)
+        store.stub(:after_flush_writes)
+        store.queued_for_write = {}
+      end
+
+      it 'should not write to the store' do
+        expect { subject }.to_not raise_error
+      end
+    end
   end
 
   describe '#flush_deletes' do
