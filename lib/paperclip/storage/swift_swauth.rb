@@ -7,7 +7,7 @@ module Paperclip
       end
 
       def exists?(style=default_style)
-        client.object_exists?(style)
+        client.object_exists?(path(style))
       end
 
       def flush_writes
@@ -20,6 +20,13 @@ module Paperclip
       end
 
       def flush_deletes
+        @queued_for_delete.each do |path|
+          client.delete_object(path) if client.object_exists?(path)
+        end
+        @queue_for_delete = []
+      end
+
+      def copy_to_local_file(style, local_dest_path)
       end
 
       protected

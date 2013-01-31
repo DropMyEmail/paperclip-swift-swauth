@@ -4,26 +4,56 @@ describe 'SwiftSwauth' do
   let(:store) { Dummy.new }
 
   describe '#exists?' do
-    subject     { store.exists?(style) }
-    let(:style) { 'square' }
+    let(:defined_style) { 'circle' }
+    let(:default_style) { 'square' }
 
     context 'when attachment with default style exists' do
-      before { Paperclip::Swift::SwauthClient.any_instance.should_receive(:object_exists?) { true } }
+      subject { store.exists? }
+      let(:default_path) { '/path/to/square' }
+
+      before do
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:object_exists?).with(default_path) { true }
+        store.should_receive(:path).with(default_style) { default_path }
+        store.stub(:default_style) { default_style }
+      end
+
       it { should be_true }
     end
 
     context 'when attachment with defined style exists' do
-      before { Paperclip::Swift::SwauthClient.any_instance.should_receive(:object_exists?).with(style) { true } }
+      subject { store.exists?(defined_style) }
+      let(:defined_path) { '/path/to/circle' }
+
+      before do
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:object_exists?).with(defined_path) { true }
+        store.should_receive(:path).with(defined_style) { defined_path }
+      end
+
       it { should be_true }
     end
 
     context 'when attachment with default style does not exist' do
-      before { Paperclip::Swift::SwauthClient.any_instance.should_receive(:object_exists?) { false } }
+      subject { store.exists? }
+      let(:default_path) { '/path/to/square' }
+
+      before do
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:object_exists?).with(default_path) { false }
+        store.should_receive(:path).with(default_style) { default_path }
+        store.stub(:default_style) { default_style }
+      end
+
       it { should be_false }
     end
 
     context 'when attachment with defined style does not exist' do
-      before { Paperclip::Swift::SwauthClient.any_instance.should_receive(:object_exists?).with(style) { false } }
+      subject { store.exists?(defined_style) }
+      let(:defined_path) { '/path/to/circle' }
+
+      before do
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:object_exists?).with(defined_path) { false }
+        store.should_receive(:path).with(defined_style) { defined_path }
+      end
+
       it { should be_false }
     end
   end
@@ -84,9 +114,59 @@ describe 'SwiftSwauth' do
 
   describe '#flush_deletes' do
     subject { store.flush_deletes }
+    let(:foo_path) { 'foo path' }
+    let(:bar_path) { 'bar path' }
 
-    context 'when delete queue has items'
-    context 'when delete queue has no items'
+    context 'when delete queue has a single item' do
+      before do
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:delete_object).with(foo_path)
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:object_exists?).with(foo_path) { true }
+        store.queued_for_delete = [foo_path]
+      end
+
+      it 'should remove the object' do
+        expect { subject }.to_not raise_error
+      end
+    end
+
+    context 'when delete queue has a few items' do
+      before do
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:delete_object).with(foo_path)
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:object_exists?).with(foo_path) { true }
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:delete_object).with(bar_path)
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:object_exists?).with(bar_path) { true }
+        store.queued_for_delete = [foo_path, bar_path]
+      end
+
+      it 'should remove the objects' do
+        expect { subject }.to_not raise_error
+      end
+    end
+
+    context 'when delete queue has non existent items' do
+      before do
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:delete_object).with(foo_path)
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:object_exists?).with(foo_path) { true }
+        Paperclip::Swift::SwauthClient.any_instance.should_not_receive(:delete_object).with(bar_path)
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:object_exists?).with(bar_path) { false }
+        store.queued_for_delete = [foo_path, bar_path]
+      end
+
+      it 'should remove the objects' do
+        expect { subject }.to_not raise_error
+      end
+    end
+
+    context 'when delete queue has no items' do
+      before do
+        Paperclip::Swift::SwauthClient.any_instance.should_not_receive(:delete_object)
+        store.queued_for_delete = []
+      end
+
+      it 'should not remove any objects' do
+        expect { subject }.to_not raise_error
+      end
+    end
   end
 
   describe '#copy_to_local_file' do
