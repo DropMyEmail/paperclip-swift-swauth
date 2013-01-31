@@ -170,9 +170,42 @@ describe 'SwiftSwauth' do
   end
 
   describe '#copy_to_local_file' do
-    subject { store.copy_to_local_file(style, local_dest_path) }
+    subject { store.copy_to_local_file(defined_style, local_dest_path) }
+    let(:defined_style) { 'trapezium' }
+    let(:local_dest_path) { '/path/to/file' }
+    let(:mock_file) { double('file') }
+    let(:mock_obj) { double('obj') }
 
-    context 'when file exists'
-    context 'when file does not exist'
+    context 'when file exists' do
+      before do
+        mock_file.should_receive(:write)
+        mock_file.should_receive(:close)
+        File.should_receive(:open).with(local_dest_path, 'wb') { mock_file }
+        store.should_receive(:exists?) { true }
+        store.should_receive(:path).with(defined_style)
+        mock_obj.should_receive(:data)
+        Paperclip::Swift::SwauthClient.any_instance.should_receive(:object) { mock_obj }
+      end
+
+      it 'should write the file locally' do
+        expect { subject }.to_not raise_error
+      end
+    end
+
+    context 'when file does not exist' do
+      before do
+        mock_file.should_not_receive(:write)
+        mock_file.should_not_receive(:close)
+        File.should_not_receive(:open).with(local_dest_path, 'wb') { mock_file }
+        store.should_receive(:exists?) { false }
+        store.should_not_receive(:path).with(defined_style)
+        mock_obj.should_not_receive(:data)
+        Paperclip::Swift::SwauthClient.any_instance.should_not_receive(:object) { mock_obj }
+      end
+
+      it 'should write the file locally' do
+        expect { subject }.to_not raise_error
+      end
+    end
   end
 end

@@ -27,6 +27,11 @@ module Paperclip
       end
 
       def copy_to_local_file(style, local_dest_path)
+        if exists?(style)
+          local_file = File.open(local_dest_path, 'wb')
+          local_file.write(client.object(path(style)).data)
+          local_file.close
+        end
       end
 
       protected
