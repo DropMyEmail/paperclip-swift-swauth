@@ -1,8 +1,14 @@
+GIT
+  remote: git@github.com:DropMyEmail/ruby-openstack.git
+  revision: 634ced00200440a9b473d97e9e36743733f5b9ee
+  specs:
+    dropmyemail-openstack (1.0.9)
+      json
+
 PATH
   remote: .
   specs:
     paperclip-swift-swauth (0.0.1)
-      openstack
 
 GEM
   remote: http://rubygems.org/
@@ -19,8 +25,6 @@ GEM
     mocha (0.10.5)
       metaclass (~> 0.0.1)
     multi_json (1.5.0)
-    openstack (1.0.8)
-      json
     rspec (2.12.0)
       rspec-core (~> 2.12.0)
       rspec-expectations (~> 2.12.0)
@@ -41,6 +45,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  dropmyemail-openstack!
   paperclip-swift-swauth!
   rspec
   shoulda
