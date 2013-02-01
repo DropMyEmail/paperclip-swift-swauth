@@ -9,11 +9,11 @@ module Paperclip
       # found in the environment
       def initialize
         @swift_opts = {
-          user:      ENV['swift_user'] || '',
-          password:  ENV['swift_password'] || '',
-          url:       ENV['swift_url'] || '',
-          tenant:    ENV['swift_tenant'] || '',
-          container: ENV['swift_container'] || ''
+          user:      ENV['SWIFT_USER'] || '',
+          password:  ENV['SWIFT_PASSWORD'] || '',
+          url:       ENV['SWIFT_URL'] || '',
+          tenant:    ENV['SWIFT_TENANT'] || '',
+          container: ENV['SWIFT_CONTAINER'] || ''
         }
       end
 
