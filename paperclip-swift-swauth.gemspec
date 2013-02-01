@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.description = 'A store for paperclip that uses openstack swift. Authenication is assumed to be swauth.'
   s.required_rubygems_version = '>= 1.3.6'
 
-  s.add_dependency 'openstack'
+#  s.add_dependency 'openstack'
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'shoulda'
 
