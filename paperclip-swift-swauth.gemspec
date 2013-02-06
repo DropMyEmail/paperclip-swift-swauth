@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'paperclip-swift-swauth'
-  s.version = '0.1.0'
+  s.version = '0.1.1'
   s.platform = Gem::Platform::RUBY
   s.authors = ['Wong Liang Zan']
   s.email = ['zan@liangzan.net']
@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.description = 'A store for paperclip that uses openstack swift. Authenication is assumed to be swauth.'
   s.required_rubygems_version = '>= 1.3.6'
 
-#  s.add_dependency 'openstack'
+  s.add_dependency 'dropmyemail-openstack'
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'shoulda'
 
